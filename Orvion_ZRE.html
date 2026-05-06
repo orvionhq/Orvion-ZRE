@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orvion ZRE™ — Zero-Resistance Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --surface3: #252525;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f0;
+    --muted: #888;
+    --faint: #555;
+    --accent: #f0f0f0;
+    --green: #4ade80;
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  html { background: var(--bg); color: var(--text); font-family: var(--font-display); }
+  body { min-height: 100vh; padding: 0; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 2px; }
+
+  /* LAYOUT */
+  .page { max-width: 720px; margin: 0 auto; padding: 3rem 2rem 6rem; }
+
+  /* TOP BADGE */
+  .dup-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+    color: var(--muted); border: 1px solid var(--border2);
+    padding: 5px 10px; border-radius: 4px; margin-bottom: 3rem;
+    text-transform: uppercase;
+  }
+
+  /* HERO */
+  .hero-title {
+    font-size: clamp(40px, 8vw, 72px); font-weight: 800;
+    letter-spacing: -0.03em; line-height: 1; margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff 0%, #888 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-sub { font-size: 16px; color: var(--muted); margin-bottom: 0.5rem; font-weight: 400; }
+  .rule-bar {
+    display: flex; align-items: center; gap: 10px;
+    margin: 1.5rem 0 0; padding: 12px 16px;
+    background: var(--surface); border-left: 2px solid var(--text);
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text);
+  }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  /* SECTION LABEL */
+  .section-label {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 1.25rem;
+  }
+
+  /* INPUT AREA */
+  .field-label {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px;
+  }
+  .task-input {
+    width: 100%; background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 12px 14px; font-family: var(--font-display);
+    font-size: 15px; color: var(--text); outline: none; margin-bottom: 1.25rem;
+    transition: border-color 0.15s;
+  }
+  .task-input:focus { border-color: rgba(255,255,255,0.3); }
+  .task-input::placeholder { color: var(--faint); }
+
+  .select-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.25rem; }
+  .select-group label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+  .select-group select {
+    width: 100%; background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 8px 10px; font-family: var(--font-mono);
+    font-size: 12px; color: var(--text); outline: none; cursor: pointer;
+    -webkit-appearance: none; appearance: none;
+  }
+  .select-group select:focus { border-color: rgba(255,255,255,0.3); }
+
+  .launch-btn {
+    width: 100%; padding: 13px; background: var(--text); color: var(--bg);
+    border: none; border-radius: 6px; font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    font-weight: 500; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; gap: 8px; transition: opacity 0.15s, transform 0.1s;
+  }
+  .launch-btn:hover { opacity: 0.88; }
+  .launch-btn:active { transform: scale(0.99); }
+
+  /* ENGINE */
+  .engine { display: none; }
+  .engine.visible { display: block; }
+
+  .task-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 8px 12px; margin-bottom: 1.5rem;
+    font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .task-pill span { color: var(--text); font-weight: 500; }
+
+  /* MODE TABS */
+  .mode-tabs { display: flex; gap: 6px; margin-bottom: 1.75rem; flex-wrap: wrap; }
+  .mode-tab {
+    padding: 7px 16px; font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.08em; text-transform: uppercase; border: 1px solid var(--border2);
+    border-radius: 4px; cursor: pointer; background: transparent; color: var(--muted);
+    transition: all 0.15s;
+  }
+  .mode-tab:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+  .mode-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+  /* MODE PANEL */
+  .mode-panel { display: none; }
+  .mode-panel.active { display: block; }
+  .mode-head { margin-bottom: 1.25rem; }
+  .mode-name { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .mode-desc { font-size: 13px; color: var(--muted); }
+
+  /* STEPS */
+  .step { margin-bottom: 6px; }
+  .step-header {
+    display: flex; align-items: center; gap: 12px; padding: 11px 14px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer; user-select: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .step-header:hover { border-color: var(--border2); background: var(--surface2); }
+  .step-header.open { border-radius: 6px 6px 0 0; border-color: var(--border2); background: var(--surface2); }
+  .step-header.done { border-color: rgba(74,222,128,0.25); background: rgba(74,222,128,0.04); }
+  .step-num { font-family: var(--font-mono); font-size: 10px; color: var(--faint); min-width: 48px; letter-spacing: 0.06em; }
+  .step-title-text { font-size: 13px; font-weight: 600; flex: 1; }
+  .step-chevron { font-size: 14px; color: var(--faint); transition: transform 0.2s; }
+  .step-header.open .step-chevron { transform: rotate(180deg); }
+  .step-check { font-size: 14px; color: var(--green); }
+
+  .step-body {
+    display: none; padding: 14px 16px 16px;
+    background: var(--surface2); border: 1px solid var(--border2);
+    border-top: none; border-radius: 0 0 6px 6px;
+  }
+  .step-body.open { display: block; }
+  .step-action { font-size: 14px; color: #ccc; line-height: 1.65; margin-bottom: 12px; }
+  .step-cta-text { font-family: var(--font-mono); font-size: 10px; color: var(--faint); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+  .done-btn {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.07em;
+    text-transform: uppercase; border: 1px solid var(--border2); border-radius: 4px;
+    cursor: pointer; background: transparent; color: var(--muted);
+    transition: all 0.15s;
+  }
+  .done-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.3); }
+  .done-btn.completed { background: rgba(74,222,128,0.1); color: var(--green); border-color: rgba(74,222,128,0.3); }
+
+  /* PROGRESS */
+  .progress-row { display: flex; align-items: center; gap: 12px; margin: 1.25rem 0; }
+  .progress-track { flex: 1; height: 2px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--text); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+  .progress-pct { font-family: var(--font-mono); font-size: 11px; color: var(--faint); min-width: 30px; text-align: right; }
+
+  /* MOMENTUM */
+  .momentum {
+    display: none; margin-top: 1.5rem; padding: 20px 22px;
+    background: var(--surface); border: 1px solid var(--border2); border-radius: 8px;
+  }
+  .momentum.visible { display: block; }
+  .momentum-title { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .momentum-body { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 12px; }
+  .identity { font-family: var(--font-mono); font-size: 12px; color: var(--text); letter-spacing: 0.04em; }
+
+  /* UPGRADE */
+  .upgrade {
+    margin-top: 3rem; padding: 28px 28px 32px;
+    border: 1px solid var(--border2); border-radius: 10px;
+    position: relative; overflow: hidden;
+  }
+  .upgrade::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  }
+  .upgrade-eye { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); margin-bottom: 10px; }
+  .upgrade-title { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .upgrade-sub { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 1.5rem; max-width: 480px; }
+  .upgrade-features { list-style: none; margin-bottom: 1.75rem; }
+  .upgrade-features li {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: #aaa; padding: 5px 0;
+    font-family: var(--font-mono);
+  }
+  .upgrade-features li i { font-size: 14px; color: var(--text); }
+  .upgrade-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 22px; background: var(--text); color: var(--bg);
+    border: none; border-radius: 5px; font-family: var(--font-mono);
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    font-weight: 500; cursor: pointer; transition: opacity 0.15s;
+  }
+  .upgrade-btn:hover { opacity: 0.85; }
+
+  @media (max-width: 520px) {
+    .page { padding: 2rem 1.25rem 5rem; }
+    .select-grid { grid-template-columns: 1fr 1fr; }
+    .hero-title { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="dup-badge">
+    <i class="ti ti-copy" aria-hidden="true"></i>
+    Duplicate this system before using
+  </div>
+
+  <div class="hero-title">Orvion ZRE™</div>
+  <div class="hero-sub">Zero-Resistance Engine — You don't plan here. You start.</div>
+  <div class="rule-bar">
+    <i class="ti ti-bolt" aria-hidden="true"></i>
+    Do not think. Just act.
+  </div>
+
+  <hr class="divider">
+
+  <div class="section-label">Input</div>
+
+  <label class="field-label" for="task-input">Task</label>
+  <input class="task-input" type="text" id="task-input" placeholder="Write the first paragraph of the report…" />
+
+  <div class="select-grid">
+    <div class="select-group">
+      <label>Time available</label>
+      <select id="time-select">
+        <option value="5">5 min</option>
+        <option value="15" selected>15 min</option>
+        <option value="30">30 min</option>
+        <option value="60">60+ min</option>
+      </select>
+    </div>
+    <div class="select-group">
+      <label>Energy level</label>
+      <select id="energy-select">
+        <option value="low">Low</option>
+        <option value="medium" selected>Medium</option>
+        <option value="high">High</option>
+      </select>
+    </div>
+    <div class="select-group">
+      <label>Environment</label>
+      <select id="env-select">
+        <option value="desk">Desk</option>
+        <option value="mobile">Mobile</option>
+        <option value="remote">Remote</option>
+      </select>
+    </div>
+  </div>
+
+  <button class="launch-btn" onclick="launchEngine()">
+    <i class="ti ti-player-play" aria-hidden="true"></i>
+    Activate engine
+  </button>
+
+  <hr class="divider">
+
+  <div class="engine" id="engine">
+
+    <div class="section-label">Execution engine</div>
+
+    <div class="task-pill" id="task-pill">
+      <i class="ti ti-target" aria-hidden="true"></i>
+      Task: <span id="task-pill-text">—</span>
+    </div>
+
+    <div class="mode-tabs">
+      <button class="mode-tab" id="tab-low" onclick="switchMode('low')">Low energy</button>
+      <button class="mode-tab" id="tab-medium" onclick="switchMode('medium')">Normal</button>
+      <button class="mode-tab" id="tab-high" onclick="switchMode('high')">High energy</button>
+    </div>
+
+    <div class="mode-panel" id="panel-low">
+      <div class="mode-head">
+        <div class="mode-name">Low energy mode</div>
+        <div class="mode-desc">Minimal effort. Maximum start. One breath at a time.</div>
+      </div>
+      <div id="steps-low"></div>
+    </div>
+
+    <div class="mode-panel" id="panel-medium">
+      <div class="mode-head">
+        <div class="mode-name">Normal mode</div>
+        <div class="mode-desc">Steady rhythm. Build momentum. Don't stop.</div>
+      </div>
+      <div id="steps-medium"></div>
+    </div>
+
+    <div class="mode-panel" id="panel-high">
+      <div class="mode-head">
+        <div class="mode-name">High energy mode</div>
+        <div class="mode-desc">Full output. No ceiling. Execute without braking.</div>
+      </div>
+      <div id="steps-high"></div>
+    </div>
+
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+      <span class="progress-pct" id="progress-pct">0%</span>
+    </div>
+
+    <div class="momentum" id="momentum">
+      <div class="momentum-title">You started. That's everything.</div>
+      <div class="momentum-body">The hardest step is always the first. You just proved you're someone who moves — not someone who waits.</div>
+      <div class="identity">→ I am someone who executes.</div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <div class="upgrade">
+    <div class="upgrade-eye">Upgrade</div>
+    <div class="upgrade-title">Orvion Execution OS™</div>
+    <div class="upgrade-sub">ZRE is the ignition. The OS is the engine. Full behavioral architecture for builders who ship — every day, without friction.</div>
+    <ul class="upgrade-features">
+      <li><i class="ti ti-check" aria-hidden="true"></i> Daily execution dashboard with streak tracking</li>
+      <li><i class="ti ti-check" aria-hidden="true"></i> Resistance pattern diagnostics</li>
+      <li><i class="ti ti-check" aria-hidden="true"></i> Identity reinforcement protocol</li>
+      <li><i class="ti ti-check" aria-hidden="true"></i> Deep work session architecture</li>
+      <li><i class="ti ti-check" aria-hidden="true"></i> Weekly resistance review system</li>
+    </ul>
+    <button class="upgrade-btn">
+      <i class="ti ti-arrow-right" aria-hidden="true"></i>
+      Get the OS
+    </button>
+  </div>
+
+</div>
+
+<script>
+const MODES = {
+  low: [
+    { title: "Open the file", action: "Just open it. Nothing else. Don't read it yet. Don't scroll. Just open it and let it exist in front of you.", cta: "Done. File is open." },
+    { title: "Read the first line", action: "Read one sentence. That's it. Don't analyze. Don't react. Just read it and stop.", cta: "Read it." },
+    { title: "Write one word", action: "Type any single word related to your task. It doesn't have to be correct. It doesn't have to be good. Just type something.", cta: "Word is down." },
+    { title: "Write one sentence", action: "Expand that word into a sentence. Doesn't matter how it sounds. You are not editing. You are moving.", cta: "Sentence is done." },
+    { title: "Continue for 5 minutes", action: "Set a timer for 5 minutes. Keep writing, talking, or doing. When it goes off — you've already started.", cta: "Timer is running." }
+  ],
+  medium: [
+    { title: "Clear your space", action: "Close every tab not related to this task. Phone face down. One window open. You have 60 seconds.", cta: "Space is clear." },
+    { title: "State the output", action: "Say out loud or write: what does done look like for this task? One line. Specific. Not vague.", cta: "Output is defined." },
+    { title: "Start the first action", action: "Do the first physical thing the task requires. Open the doc. Pull up the code. Dial the number. Start — don't prepare to start.", cta: "First action done." },
+    { title: "Complete one unit", action: "Finish one complete unit of work. One paragraph. One function. One email. Small and whole.", cta: "Unit complete." },
+    { title: "Lock in a 15-min sprint", action: "Set a timer for 15 minutes. No switching. No checking. Just this task until it goes off.", cta: "Sprint locked in." }
+  ],
+  high: [
+    { title: "State intent out loud", action: "Say exactly what you will produce in the next 30 minutes. Specific output. No hedging.", cta: "Intent stated." },
+    { title: "Start the hardest part first", action: "Skip the warm-up. Go directly to the part you've been avoiding. Do it now while your energy is real.", cta: "Hardest part started." },
+    { title: "Produce a full draft", action: "Get the entire rough version out — don't stop, don't edit, don't second-guess. Volume over quality here.", cta: "Draft exists." },
+    { title: "Cut everything weak", action: "Read what you made. Delete anything that doesn't earn its place. Be ruthless. Edit is not a mood — it's a decision.", cta: "Cuts made." },
+    { title: "Finalize and ship", action: "Stop refining. The thing is done enough. Send it, commit it, submit it. Done is the goal — not perfect.", cta: "Shipped." }
+  ]
+};
+
+let completed = {};
+let currentMode = 'medium';
+
+function buildSteps(mode) {
+  const wrap = document.getElementById('steps-' + mode);
+  wrap.innerHTML = '';
+  MODES[mode].forEach((s, i) => {
+    const key = mode + '-' + i;
+    const done = completed[key];
+    const div = document.createElement('div');
+    div.className = 'step';
+    div.id = 'step-' + key;
+    div.innerHTML = `
+      <div class="step-header ${done ? 'done' : ''}" id="hdr-${key}" onclick="toggleStep('${key}')">
+        <span class="step-num">Step ${i+1}</span>
+        <span class="step-title-text">${s.title}</span>
+        ${done
+          ? '<i class="ti ti-check step-check" aria-hidden="true"></i>'
+          : '<i class="ti ti-chevron-down step-chevron" aria-hidden="true"></i>'
+        }
+      </div>
+      <div class="step-body" id="body-${key}">
+        <div class="step-action">${s.action}</div>
+        <div class="step-cta-text">→ ${s.cta}</div>
+        <button class="done-btn ${done ? 'completed' : ''}" id="btn-${key}" onclick="markDone('${key}','${mode}',${i})">
+          <i class="ti ${done ? 'ti-check' : 'ti-player-play'}" aria-hidden="true"></i>
+          ${done ? 'Done' : 'Mark done'}
+        </button>
+      </div>`;
+    wrap.appendChild(div);
+  });
+}
+
+function toggleStep(key) {
+  const body = document.getElementById('body-' + key);
+  const hdr = document.getElementById('hdr-' + key);
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  hdr.classList.toggle('open', !open);
+}
+
+function markDone(key, mode, idx) {
+  completed[key] = true;
+  const btn = document.getElementById('btn-' + key);
+  const hdr = document.getElementById('hdr-' + key);
+  btn.className = 'done-btn completed';
+  btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Done';
+  hdr.className = 'step-header done';
+  hdr.innerHTML = hdr.innerHTML.replace(/<i class="ti ti-chevron.*?<\/i>/, '<i class="ti ti-check step-check" aria-hidden="true"></i>');
+  updateProgress();
+  if (idx + 1 < MODES[mode].length) {
+    setTimeout(() => {
+      const nk = mode + '-' + (idx + 1);
+      document.getElementById('body-' + nk)?.classList.add('open');
+      document.getElementById('hdr-' + nk)?.classList.add('open');
+    }, 300);
+  }
+  if (Object.keys(completed).some(k => k.startsWith(currentMode))) {
+    document.getElementById('momentum').classList.add('visible');
+  }
+}
+
+function updateProgress() {
+  const total = MODES[currentMode].length;
+  const done = MODES[currentMode].filter((_, i) => completed[currentMode + '-' + i]).length;
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+}
+
+function switchMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + mode).classList.add('active');
+  document.querySelectorAll('.mode-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + mode).classList.add('active');
+  buildSteps(mode);
+  updateProgress();
+  const hasDone = Object.keys(completed).some(k => k.startsWith(mode));
+  document.getElementById('momentum').classList.toggle('visible', hasDone);
+}
+
+function launchEngine() {
+  const task = document.getElementById('task-input').value.trim() || 'Your task';
+  const energy = document.getElementById('energy-select').value;
+  document.getElementById('task-pill-text').textContent = task;
+  const eng = document.getElementById('engine');
+  eng.classList.add('visible');
+  completed = {};
+  switchMode(energy);
+  setTimeout(() => eng.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+</script>
+</body>
+</html>
